@@ -19,5 +19,5 @@ required files:
 }
 ```
 
-`credentials.json`: (Instructions)[https://developers.google.com/sheets/api/quickstart/python]
+`credentials.json`: [Instructions](https://developers.google.com/sheets/api/quickstart/python)
 
