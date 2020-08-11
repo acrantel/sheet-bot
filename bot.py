@@ -80,7 +80,7 @@ async def on_member_join(member):
 
 @client.event
 async def on_member_remove(member):
-    await strike_members_sheet(message.guild)
+    await strike_members_sheet(member.guild)
 
 
 async def respond(message, responses, emoji):
