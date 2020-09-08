@@ -57,6 +57,7 @@ async def on_message(message):
     msg = msg[1:]
 
     # admin functionality
+    print(message.author)
     if message.author.guild_permissions.administrator:
         split = msg.split(' ')
         if split[0] == 'all':
