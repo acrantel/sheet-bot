@@ -92,7 +92,7 @@ async def respond(message, responses, emoji):
 
 
 def get_members_ids_sheet(guild):
-    ''' get a list of member ids from a guild's sheet '''
+    ''' Get a list of member ids from a guild's sheet '''
     guild_info = guilds[str(guild.id)]
     spreadsheet_id = guild_info['spreadsheet_id']
     sheet_name = guild_info['sheet_name']
@@ -105,12 +105,13 @@ def get_members_ids_sheet(guild):
 
 
 async def add_members_sheet(guild):
-    ''' Add missing members to the sheet
-    '''
+    ''' Add missing members to the sheet '''
     print('adding new members to sheet for', guild.name)
     guild_info = guilds[str(guild.id)]
     spreadsheet_id = guild_info['spreadsheet_id']
     sheet_name = guild_info['sheet_name']
+    id_col = guild_info['id_col']
+    discord_col = guild_info['discord_col']
 
     members = guild.members
     # current members of server
@@ -126,17 +127,27 @@ async def add_members_sheet(guild):
     print('new members:', new_ids)
 
     table_range = '{0}!A2:A'.format(sheet_name)
-    # TODO fix this very ugly code that doesn't work for multiple servers lol
+    values = format_values([(discord_col, new_discords)])
+    
     value_range = {
         'range': table_range,
         'majorDimension': 'ROWS',
-        'values': [['?', '?', '?', new_discords[i], str(new_ids[i])] for i in range(len(new_ids))]
+        'values': [format_values([(discord_col, new_discords[i]), (id_col, str(new_ids[i]))]) for i in range(len(new_ids))]
     }
     request = sheets.values().append(spreadsheetId=spreadsheet_id, range=table_range,
                                      valueInputOption='RAW', insertDataOption='INSERT_ROWS', body=value_range)
     response = request.execute()
     print(response)
 
+def format_values(values):
+    ''' Takes an array of tuples where each element is a (column_letter, value) tuple. 
+        Returns a formatted values array ready to be sent to sheets '''
+    sorted_vals = sorted(values, key=lambda tup: tup[0])
+    res = ['?'] * (ord(sorted_vals[-1][0])-ord('A')+1)
+    for tup in sorted_vals:
+        res[ord(tup[0])-ord('A')] = tup[1]
+    print(res)
+    return res
 
 async def strike_members_sheet(guild):
     ''' Update sheet with members who are no longer in the server '''
